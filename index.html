@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Mailbox explorer</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale=0.9, maximum-scale=0.9">
+    <script src="./scripts/jquery-2.2.4.min.js"></script>
+    <script src="./scripts/react-0.14.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./assets/inbox.css">
+	<link rel="stylesheet" type="text/css" href="./assets/style.css">
+</head>
+<body>
+	<div id="container">
+    	<div class="banner">
+            <img src="./assets/logo.png" style="width: 75px; top: 40%; position: absolute; left: 50%; margin-left: -35px;">
+        </div>
+        <div id="content">
+        	<div class="content" style="margin-left: -210px; margin-top: -125px;">
+        		<p class="our-color">Mailbox</p>
+                <form class="form" method="post" id="form" style="padding-right: 25px; padding-left: 25px;">
+                    <input id="share-link" autocapitalize="none" name="share" placeholder="Share ID">
+                    <input id="validate-btn" type="button" value="    Consult    ">
+                </form>
+                <div class="social-networks">
+                    <a><span class="fa fa-google-plus">&clubs;</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper" style="display: none;">
+        <div id="inbox"></div>
+        <div class="footer"></div>
+    </div>
+    <script>
+        function showError(err) {
+            window.alert(err);
+        }
+
+        function loadInbox(callback) {
+            var head = document.getElementsByTagName('head')[0];
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = './scripts/inbox.js';
+            script.onreadystatechange = callback;
+            script.onload = callback;
+            head.appendChild(script);
+        }
+
+        function clickHandler() {
+            var link = document.getElementById('share-link').value;
+            if (!link || 0 === link.length) {
+                showError("Incorrect share ID");
+                return;
+            }
+            $.ajax({ url: 'https://cors-anywhere.herokuapp.com/https://drive.google.com/uc?export=download&id=' + link,
+                type: 'GET',
+                success: function success(data) {
+                    loadInbox(() => {
+                        document.querySelector('#container').style.display = 'none';
+                        document.querySelector('.wrapper').style.display = 'block';
+                        render(data);
+                    });
+                },
+                error: function error(e) {
+                    showError("Impossible to get content");
+                }
+            });
+        }
+
+        document.getElementById('validate-btn').onclick = clickHandler;
+    </script>
+</body>
+</html>
