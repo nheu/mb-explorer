@@ -36,23 +36,13 @@
             window.alert(err);
         }
 
-        function loadInbox(callback) {
-            var head = document.getElementsByTagName('head')[0];
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = './scripts/inbox.js';
-            script.onreadystatechange = callback;
-            script.onload = callback;
-            head.appendChild(script);
-        }
-
-        function clickHandler() {
-            var link = document.getElementById('share-link').value;
-            if (!link || 0 === link.length) {
+        function loadData(shareId) {
+            if (!shareId || 0 === shareId.length) {
                 showError("Incorrect share ID");
                 return;
             }
-            $.ajax({ url: 'https://cors-anywhere.herokuapp.com/https://drive.google.com/uc?export=download&id=' + link,
+
+            $.ajax({ url: 'https://cors-anywhere.herokuapp.com/https://drive.google.com/uc?export=download&id=' + shareId,
                 type: 'GET',
                 success: function success(data) {
                     loadInbox(() => {
@@ -65,6 +55,28 @@
                     showError("Impossible to get content");
                 }
             });
+        }
+
+        function loadInbox(callback) {
+            var head = document.getElementsByTagName('head')[0];
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = './scripts/inbox.js';
+            script.onreadystatechange = callback;
+            script.onload = callback;
+            head.appendChild(script);
+        }
+
+        function clickHandler() {
+            const shareId = document.getElementById('share-link').value;
+            loadData(shareId);
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const defaultShareId = urlParams.get('shareId');
+        if (defaultShareId) {
+            document.getElementById('share-link').value = defaultShareId;
+            loadData(defaultShareId);
         }
 
         document.getElementById('validate-btn').onclick = clickHandler;
